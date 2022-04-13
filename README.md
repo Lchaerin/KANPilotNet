@@ -71,7 +71,7 @@ The instructions are tested on Ubuntu 16.04 with python 2.7 and tensorflow 1.0 w
 
 ## Dataset
 　If you want to run the demo on the dataset or try some training works, download the
-[driving_dataset.zip](https://drive.google.com/file/d/0B-KJCaaF7elleG1RbzVPZWV4Tlk/view?usp=sharing) and recommend you to
+[driving_dataset.zip](https://drive.google.com/file/d/1Ue4XohCOV5YXy57S_5tDfCVqzLr101M7/view) and recommend you to
 extract into the dataset folder [`./data/dataset_nvidia/`](./data/dataset_nvidia/).
 ```bash
 $ cd $ROOT/data/dataset_nvidia/
@@ -79,7 +79,7 @@ $ wget -t https://drive.google.com/file/d/0B-KJCaaF7elleG1RbzVPZWV4Tlk/view?usp=
 $ unzip driving_dataset.zip -d .
 ```
 
-　This [driving_dataset.zip](https://drive.google.com/file/d/0B-KJCaaF7elleG1RbzVPZWV4Tlk/view?usp=sharing) consists of
+　This [driving_dataset.zip](https://drive.google.com/file/d/1Ue4XohCOV5YXy57S_5tDfCVqzLr101M7/view) consists of
 **images of the road ahead (`*.jpg`)** and recorded **steering wheel angles (`%.6f`)**, `data.txt` should in following
 format:
 ```yaml
@@ -90,6 +90,7 @@ format:
 101.jpg 2.120000
     ...
 ```
+　**PS:** The Official download link [driving_dataset.zip](https://drive.google.com/file/d/1Ue4XohCOV5YXy57S_5tDfCVqzLr101M7/view) is on Google Drive, here I also share a backup link in Baidu Net: [download link](https://pan.baidu.com/s/1kZC-6CL1xgk2SUtCt2oz5A) (extract code: **gprm**).
 
 ## Demo
 　You can run this demo directly on a live webcam feed in actual running scenario (**online**) or just **offline**, given input
