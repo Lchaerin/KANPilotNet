@@ -11,7 +11,7 @@ class PilotNet(object):
         # placeholders
         self.image_input = tf.compat.v1.placeholder(
             tf.float32, shape=[None, 66, 200, 3], name='image_input'
-        )
+        )  
         self.y_        = tf.compat.v1.placeholder(
             tf.float32, shape=[None, 1], name='steering_true'
         )

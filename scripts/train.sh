@@ -1,10 +1,14 @@
 #!/bin/bash
+unset LD_LIBRARY_PATH
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.8/site-packages/tensorflow/lib:$LD_LIBRARY_PATH"
 
-export DATASET_DIR="./data/datasets/driving_dataset"
+export TF_CUDNN_USE_AUTOTUNE=0
+export TF_CUDNN_DETERMINISTIC=1
+export DATASET_DIR="./data/datasets/driving_dataset2"
 export clear_log=False
 export LOG_DIR="./logs"
 export num_epochs=30
-export batch_size=128
+export batch_size=32
 
 while test $# -gt 0; do
   case "$1" in

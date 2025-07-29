@@ -1,5 +1,5 @@
 #!/bin/bash
-
+unset LD_LIBRARY_PATH
 export online=false
 export DATASET_DIR="./data/datasets/driving_dataset"
 export MODEL_FILE="./data/models/nvidia/model.ckpt"

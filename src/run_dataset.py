@@ -1,9 +1,12 @@
-import tensorflow as tf
-import scipy.misc
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+
+import imageio
 from nets.pilotNet import PilotNet
 import cv2
 from subprocess import call
-
+import numpy as np
+from PIL import Image
 FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string(
@@ -51,8 +54,8 @@ if __name__ == '__main__':
             saver.restore(sess, FLAGS.model_file)
 
             while(cv2.waitKey(10) != ord('q')):
-                full_image = scipy.misc.imread(FLAGS.dataset_dir + "/" + str(i) + ".jpg", mode="RGB")
-                image = scipy.misc.imresize(full_image[-150:], [66, 200]) / 255.0
+                full_image = imageio.imread(f"{FLAGS.dataset_dir}/{i}.jpg")
+                image = np.array(Image.fromarray(full_image[-150:]).resize((200, 66))) / 255.0
 
                 steering = sess.run(
                     model.steering,
@@ -62,12 +65,12 @@ if __name__ == '__main__':
                     }
                 )
 
-                degrees = steering[0][0] * 180.0 / scipy.pi
+                degrees = steering[0][0] * 180.0 / np.pi
                 call("clear")
                 print("Predicted steering angle: " + str(degrees) + " degrees")
                 # convert RGB due to dataset format
                 cv2.imshow("Scenario", cv2.cvtColor(full_image, cv2.COLOR_RGB2BGR))
-                print("Scenario image size: {} x {}").format(full_image.shape[0], full_image.shape[1])
+                print("Scenario image size: {} x {}".format(full_image.shape[0], full_image.shape[1]))
 
                 # make smooth angle transitions by turning the steering wheel based on the difference of the current angle
                 # and the predicted angle

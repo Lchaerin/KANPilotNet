@@ -1,105 +1,89 @@
-import tensorflow as tf
-import scipy.misc
-from nets import model_nvidia
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+from nets import model_nvidia
 
 FLAGS = tf.app.flags.FLAGS
-
 tf.app.flags.DEFINE_string(
     'dataset_dir', './data/datasets/driving_dataset',
-    """Directory that stores input recored front view images and steering wheel angles.""")
-
-"""model from nvidia's training"""
+    "Directory that stores input front-view images and steering angles.")
 tf.app.flags.DEFINE_string(
     'model_file', './data/models/nvidia/model.ckpt',
-    """Path to the model parameter file.""")
+    "Path to the trained model checkpoint.")
 
-def _generate_feature_image(feature_map, shape):
-    dim = feature_map.shape[2]
-    row_step = feature_map.shape[0]
-    col_step = feature_map.shape[1]
+def _generate_feature_image(feature_map, grid_shape):
+    # feature_map: H×W×C, grid_shape: [rows, cols] such that rows*cols = C
+    h, w, c = feature_map.shape
+    fmin = feature_map.min()
+    fmax = feature_map.max()
+    frange = fmax - fmin if (fmax - fmin) != 0 else 1.0
 
-    feature_image = np.zeros([row_step*shape[0], col_step*shape[1]])
-    min = np.min(feature_map)
-    max = np.max(feature_map)
-    minmax = np.fabs(min - max)
-    cnt = 0
-    for row in range(shape[0]):
-        row_idx = row_step * row
-        row_idx_nxt = row_step * (row + 1)
-        for col in range(shape[1]):
-            col_idx = col_step * col
-            col_idx_nxt = col_step * (col + 1)
-            feature_image[row_idx:row_idx_nxt, col_idx:col_idx_nxt] = (feature_map[:, :, cnt] - min) * 1.0/minmax
-            cnt += 1
-    return feature_image
+    out = np.zeros((h * grid_shape[0], w * grid_shape[1]), dtype=np.float32)
+    idx = 0
+    for i in range(grid_shape[0]):
+        for j in range(grid_shape[1]):
+            patch = feature_map[:, :, idx]
+            norm = (patch - fmin) / frange
+            y0, y1 = i*h, (i+1)*h
+            x0, x1 = j*w, (j+1)*w
+            out[y0:y1, x0:x1] = norm
+            idx += 1
+    return out
 
-def show_activation(argv=None):
-    """show the activations of the first two feature map layers"""
+def show_activation(_):
+    img_path = f"{FLAGS.dataset_dir}/29649.jpg"
+    bgr = cv2.imread(img_path)
+    if bgr is None:
+        raise FileNotFoundError(f"Cannot read image: {img_path}")
+    rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+    image = cv2.resize(rgb, (200, 66)) / 255.0  # (width, height)
 
-    # randomly choose an img from dataset
-    full_image = scipy.misc.imread(FLAGS.dataset_dir + "/29649" + ".jpg", mode="RGB")
-    # input planes: 3@66x200 & Normalization
-    image = scipy.misc.imresize(full_image, [66, 200]) / 255.0
-
-    fig = plt.figure('Visualization of Internal CNN State')
-    plt.subplot(211)
-    plt.title('Normalized input planes 3@66x200 to the CNN')
+    plt.figure('CNN Internal Activation')
+    plt.subplot(2,1,1)
+    plt.title('Input 3@66×200')
     plt.imshow(image)
 
     saver = tf.train.Saver()
-
-    # model has been constructed from import
-    # with tf.Graph().as_default():
-
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
         saver.restore(sess, FLAGS.model_file)
-        print("Load session successfully")
+        print("Model restored successfully.")
 
-        conv1act, conv2act, conv3act, conv4act, conv5act = sess.run(
-            [model_nvidia.h_conv1, model_nvidia.h_conv2, model_nvidia.h_conv3, model_nvidia.h_conv4, model_nvidia.h_conv5],
-            feed_dict={
-                model_nvidia.x: [image]
-            }
+        conv1, conv2, conv3, conv4, conv5 = sess.run(
+            [model_nvidia.h_conv1, model_nvidia.h_conv2,
+             model_nvidia.h_conv3, model_nvidia.h_conv4,
+             model_nvidia.h_conv5],
+            feed_dict={model_nvidia.x: [image]}
         )
 
-        conv1img = _generate_feature_image(conv1act[0], [6, int(conv1act.shape[3]/6)])
-        conv2img = _generate_feature_image(conv2act[0], [6, int(conv1act.shape[3]/6)])
+        f1_img = _generate_feature_image(conv1[0], [6, conv1.shape[3] // 6])
+        f2_img = _generate_feature_image(conv2[0], [6, conv2.shape[3] // 6])
 
-        # get the mean, and supress the first(batch) dimension
-        averageC5 = np.mean(conv5act, axis=3).squeeze(axis=0)
-        averageC4 = np.mean(conv4act, axis=3).squeeze(axis=0)
-        averageC3 = np.mean(conv3act, axis=3).squeeze(axis=0)
-        averageC2 = np.mean(conv2act, axis=3).squeeze(axis=0)
-        averageC1 = np.mean(conv1act, axis=3).squeeze(axis=0)
+        def avg_act(act): 
+            return act.mean(axis=3).squeeze(axis=0)
+        a1, a2, a3, a4, a5 = map(avg_act, (conv1, conv2, conv3, conv4, conv5))
 
-        # upscale
-        averageC5up = scipy.misc.imresize(averageC5, [averageC4.shape[0], averageC4.shape[1]])
-        multC45 = np.multiply(averageC5up, averageC4)
-        multC45up = scipy.misc.imresize(multC45, [averageC3.shape[0], averageC3.shape[1]])
-        multC34 = np.multiply(multC45up, averageC3)
-        multC34up = scipy.misc.imresize(multC34, [averageC2.shape[0], averageC2.shape[1]])
-        multC23 = np.multiply(multC34up, averageC2)
-        multC23up = scipy.misc.imresize(multC23, [averageC1.shape[0], averageC1.shape[1]])
-        multC12 = np.multiply(multC23up, averageC1)
-        multC12up = scipy.misc.imresize(multC12, [image.shape[0], image.shape[1]])
+        def up(src, tgt):
+            return cv2.resize(src, (tgt.shape[1], tgt.shape[0]), interpolation=cv2.INTER_AREA)
 
-        # normalize to [0,1], however, it did not show the salient map, the multC12up shows something like salient
-        salient_mask = (multC12up - np.min(multC12up))/(np.max(multC12up) - np.min(multC12up))
-        plt.subplot(223)
-        plt.title('Activation of the \nfirst layer feature maps')
-        plt.imshow(conv1img, cmap='gray')
-        # plt.imshow(multC12up)
+        m45 = a4 * up(a5, a4)
+        m34 = a3 * up(m45, a3)
+        m23 = a2 * up(m34, a2)
+        m12 = a1 * up(m23, a1)
 
-        plt.subplot(224)
-        plt.title('Activation of the \nsecond layer feature maps')
-        # plt.imshow(salient_mask)
-        plt.imshow(conv2img, cmap='gray')
+        sal = (m12 - m12.min()) / (m12.max() - m12.min() + 1e-8)
+        sal_up = cv2.resize(sal, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_AREA)
+
+        plt.subplot(2,2,3)
+        plt.title('Layer1 Feature Maps')
+        plt.imshow(f1_img, cmap='gray')
+
+        plt.subplot(2,2,4)
+        plt.title('Layer2 Feature Maps')
+        plt.imshow(f2_img, cmap='gray')
 
     plt.show()
 
 if __name__ == '__main__':
-    # run the train function
-    tf.app.run(main=show_activation, argv=[])
+    tf.app.run(main=show_activation)
