@@ -41,10 +41,13 @@ format:
 　**PS:** The Official download link [driving_dataset.zip](https://drive.google.com/file/d/1Ue4XohCOV5YXy57S_5tDfCVqzLr101M7/view) is on Google Drive, here I also share a backup link in Baidu Net: [download link](https://pan.baidu.com/s/1kZC-6CL1xgk2SUtCt2oz5A) (extract code: **gprm**).
 
 ### Option 2 (Big)
+※ This dataset is not fully checked. Option 1 is recommended.
+
+Download a chunk(or chunks) from [comma2k19 dataset](https://github.com/commaai/comma2k19).
 
 Then, run `export_frames_with_angles.py`
 ```bash
-$ python export_frames_with_angles.py ~/ssd/Chaerin-pilot/PilotNet/Chunk_1 ~/ssd/Chaerin-pilot/PilotNet/data/datasets/driving_dataset2 --width 455 --height 256 --jpeg-quality 70
+$ python export_frames_with_angles.py ~/[root]/KANPilotNet/Chunk_1 ~/[root]/KANPilotNet/data/datasets/driving_dataset --width 455 --height 256 --jpeg-quality 70
 ```
 
 ## Demo
