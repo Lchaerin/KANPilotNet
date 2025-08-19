@@ -4,7 +4,7 @@ export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$CONDA_PREFIX/lib/python3.8/site-packa
 
 export TF_CUDNN_USE_AUTOTUNE=0
 export TF_CUDNN_DETERMINISTIC=1
-export DATASET_DIR="./data/datasets/driving_dataset2"
+export DATASET_DIR="./data/datasets/driving_dataset"
 export clear_log=False
 export LOG_DIR="./logs"
 export num_epochs=30

@@ -20,9 +20,9 @@ The instructions are tested on Ubuntu 18.04 with python 3.8 and tensorflow 2.10.
 ### Option 1 (Small)
 　If you want to run the demo on the dataset or try some training works, download the
 [driving_dataset.zip](https://drive.google.com/file/d/1Ue4XohCOV5YXy57S_5tDfCVqzLr101M7/view) and recommend you to
-extract into the dataset folder [`./data/dataset_nvidia/`](./data/dataset_nvidia/).
+extract into the dataset folder [`./data/datasets/`](./data/datasets/).
 ```bash
-$ cd $ROOT/data/dataset_nvidia/
+$ cd $ROOT/data/datasets/
 $ wget -t https://drive.google.com/file/d/0B-KJCaaF7elleG1RbzVPZWV4Tlk/view?usp=sharing
 $ unzip driving_dataset.zip -d .
 ```
