@@ -54,11 +54,14 @@ $ python export_frames_with_angles.py ~/[root]/KANPilotNet/Chunk_1 ~/[root]/KANP
 　You can run this demo directly on a live webcam feed in actual running scenario (**online**) or just **offline**, given input
 images of the road ahead.
 
-+ Either rename the file you want to use among `pilotNet_original.py` (original (PilotNet)[https://github.com/AutoDeep/PilotNet]), `pilotNet_KAN1.py` (CNN+DenseKAN), and `PilotNet_KAN2.py` (ConvKAN+DenseKAN) located in `./src/nets` to `pilotNet.py`; or edit the import statements in `run_capture.py`, `run_dataset.py`, and `train.py` in `./src` from 
++ Either rename the file you want to use among `pilotNet_original.py` (original (PilotNet)[https://github.com/AutoDeep/PilotNet]), `pilotNet_KAN1.py` (CNN+DenseKAN), and `PilotNet_KAN2.py` (ConvKAN+DenseKAN) located in `./src/nets` to `pilotNet.py`;
+
+   or edit the import statements in `run_capture.py`, `run_dataset.py`, and `train.py` in `./src` from 
    ```python
    from nets.pilotNet import PilotNet
    ```
-to ```python
+   to
+   ```python
    from nets.[desired model architecture] import PilotNet
    ```
 
