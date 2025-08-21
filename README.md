@@ -1,4 +1,24 @@
 # _KANPilotNet_: Advanced PilotNet with KAN
+Implementation of KAN in PilotNet to verify the effectiveness of [KAN (Kolmogorov–Arnold Networks)](https://arxiv.org/abs/2404.19756) for autonomous driving models. We used [tfkan](https://github.com/ZPZhou-lab/tfkan), a TensorFlow-based KAN library.
+
+<p align="center">
+   <img src="./readme/model_structure.png" width="540" alt=""/>
+</p>
+We trained the [original model from PilotNet](./src/nets/pilotNet_original.py), [CNN+DenseKAN](./src/nets/pilotNet_KAN1.py), and [ConvKAN+DenseKAN](./src/nets/pilotNet_KAN2.py) on a small dataset with a batch size of 32.
+
+|                         | Original  | CNN+DenseKAN | ConvKAN+DenseKAN |
+|-------------------------|----------:|-------------:|-----------------:|
+| Total Parameters        | 1,595,513 | 12,753,559   | 414,691          |
+| Model Size(.ckpt)       | 18.2MB    | 145MB        | 4.61MB           |
+| Training Time (per epoch)| 1m 10s    | 2m 30s       | 22m              |
+| Inference Time          | 0.01s     | 0.02s        | 0.09s            |
+
+Although the CNN+DenseKAN model reduced the number of layers, its parameter count became very large. In the ConvKAN+DenseKAN model, we reduced not only the number of layers but also other hyperparameters, achieving a smaller model size. However, regardless of parameter size, KAN showed limitations in both training time and inference time.
+
+<p align="center">
+   <img src="./readme/epoch_loss_graph.png" width="540" alt=""/>
+</p>
+Replacing traditional convolution layers showed a meaningful improvement in loss.
 
 
 # How to Use
